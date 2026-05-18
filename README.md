@@ -26,6 +26,18 @@
 
 ---
 
+> **安全加固分支 (Security-Hardened Fork)**
+> 
+> 本分支基于 [borawong/AiMaMi](https://github.com/borawong/AiMaMi) 上游，增加了以下安全加固：
+> - **CSP 策略**: 将 `tauri.conf.json` 中 `csp: null` 替换为严格的内容安全策略 (`default-src 'self'`)，防止 WebView 中的 XSS 攻击通过 Tauri IPC 升级为系统级命令执行
+> - **依赖锁定**: 添加 `packageManager: pnpm@10.26.2` 字段，为确定性依赖解析做准备
+> 
+> 安全审计报告: 参见 [SECURITY_AUDIT_REPORT.md](https://github.com/TurnX-alt/AiMaMi/blob/main/../SECURITY_AUDIT_REPORT.md)
+> 
+> 上游 PR: [#17](https://github.com/borawong/AiMaMi/pull/17)
+
+---
+
 ## 核心亮点
 
 AiMaMi **不是** Codex 的 fork 或套壳 —— 它是一个独立的原生桌面应用，为 Codex 扩展官方客户端不具备的能力：
