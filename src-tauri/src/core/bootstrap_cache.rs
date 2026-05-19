@@ -1,6 +1,8 @@
 use serde::{Deserialize, Serialize};
 
 use super::models::CoreSnapshotPayload;
+use super::analytics::UsageAnalyticsPayload;
+use super::models::{McpServerListPayload, SkillListPayload};
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct BootstrapStatePayload {
@@ -9,9 +11,9 @@ pub struct BootstrapStatePayload {
     pub last_boot_at: Option<i64>,
     pub written_at: Option<i64>,
     pub snapshot_progressive: Option<CoreSnapshotPayload>,
-    pub usage_analytics: Option<serde_json::Value>,
-    pub mcp_servers: Option<serde_json::Value>,
-    pub installed_skills: Option<serde_json::Value>,
+    pub usage_analytics: Option<UsageAnalyticsPayload>,
+    pub mcp_servers: Option<McpServerListPayload>,
+    pub installed_skills: Option<SkillListPayload>,
 }
 
 pub fn load(path: &std::path::Path) -> BootstrapStatePayload {

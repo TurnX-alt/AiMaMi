@@ -15,13 +15,16 @@ pub struct ApiRequestContext {
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct AuthFile {
+    #[serde(default)]
     pub accounts: Vec<AuthAccount>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AuthAccount {
     pub account_key: String,
+    #[serde(default)]
     pub token: Option<String>,
+    #[serde(default)]
     pub session_id: Option<String>,
 }
 
@@ -32,15 +35,24 @@ pub struct ApiKey {
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct AuthSnapshot {
-    pub account_key: Option<String>,
+    pub account_key: String,
+    #[serde(default)]
     pub email: Option<String>,
+    #[serde(default)]
     pub account_name: Option<String>,
+    #[serde(default)]
     pub workspace_name: Option<String>,
+    #[serde(default)]
     pub profile_name: Option<String>,
-    pub plan: Option<String>,
-    pub auth_mode: Option<String>,
+    #[serde(default)]
+    pub plan: String,
+    #[serde(default)]
+    pub auth_mode: String,
+    #[serde(default)]
     pub created_at: Option<i64>,
+    #[serde(default)]
     pub captured_at: Option<i64>,
+    #[serde(default)]
     pub accounts: Vec<AuthAccount>,
 }
 
@@ -68,25 +80,25 @@ pub fn make_auth_snapshot(
     let ts = current_timestamp();
     match auth.accounts.first() {
         Some(acc) => Ok(AuthSnapshot {
-            account_key: Some(acc.account_key.clone()),
+            account_key: acc.account_key.clone(),
             email: None,
             account_name: None,
             workspace_name: None,
             profile_name: None,
-            plan: None,
-            auth_mode: None,
+            plan: String::new(),
+            auth_mode: String::new(),
             created_at: Some(ts),
             captured_at: Some(ts),
             accounts: auth.accounts.clone(),
         }),
         None => Ok(AuthSnapshot {
-            account_key: None,
+            account_key: String::new(),
             email: None,
             account_name: None,
             workspace_name: None,
             profile_name: None,
-            plan: None,
-            auth_mode: None,
+            plan: String::new(),
+            auth_mode: String::new(),
             created_at: None,
             captured_at: Some(ts),
             accounts: vec![],

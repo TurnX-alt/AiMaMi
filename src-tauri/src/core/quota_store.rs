@@ -6,9 +6,9 @@ use super::models::{CoreError, RateLimitWindow, UsageSource};
 pub struct QuotaStoreItem {
     pub account_key: String,
     pub captured_at: i64,
-    pub last_updated_at: i64,
     #[serde(default)]
-    pub usage_source: Option<UsageSource>,
+    pub last_updated_at: i64,
+    pub usage_source: UsageSource,
     #[serde(default)]
     pub primary_window: Option<RateLimitWindow>,
     #[serde(default)]
@@ -50,17 +50,9 @@ pub fn find_item<'a>(store: &'a QuotaStoreFile, account_key: &str) -> Option<&'a
 pub fn upsert_item(
     store: &mut QuotaStoreFile,
     item: QuotaStoreItem,
-    ts: i64,
+    _ts: i64,
 ) -> bool {
-    let existing = store.items.iter_mut().find(|i| i.account_key == item.account_key);
-    if let Some(existing) = existing {
-        *existing = item;
-        existing.last_updated_at = ts;
-    } else {
-        let mut new_item = item;
-        new_item.last_updated_at = ts;
-        store.items.push(new_item);
-    }
+    store.items.push(item);
     true
 }
 
