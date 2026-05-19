@@ -27,6 +27,9 @@ jobs:
 
     runs-on: ${{ matrix.platform }}
 
+    env:
+      TAURI_SKIP_VERSION_CHECK: "true"
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -112,7 +115,6 @@ jobs:
           releaseBody: ${{ steps.release_notes.outputs.body }}
           releaseDraft: true
           prerelease: false
-          tauriScript: "TAURI_SKIP_VERSION_CHECK=true pnpm tauri"
           args: ${{ matrix.args }}
 
   publish-release:
