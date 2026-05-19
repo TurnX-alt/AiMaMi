@@ -49,9 +49,9 @@ pub struct AuthSnapshot {
     #[serde(default)]
     pub auth_mode: String,
     #[serde(default)]
-    pub created_at: Option<i64>,
+    pub created_at: i64,
     #[serde(default)]
-    pub captured_at: Option<i64>,
+    pub captured_at: i64,
     #[serde(default)]
     pub accounts: Vec<AuthAccount>,
 }
@@ -87,8 +87,8 @@ pub fn make_auth_snapshot(
             profile_name: None,
             plan: String::new(),
             auth_mode: String::new(),
-            created_at: Some(ts),
-            captured_at: Some(ts),
+            created_at: ts,
+            captured_at: ts,
             accounts: auth.accounts.clone(),
         }),
         None => Ok(AuthSnapshot {
@@ -99,8 +99,8 @@ pub fn make_auth_snapshot(
             profile_name: None,
             plan: String::new(),
             auth_mode: String::new(),
-            created_at: None,
-            captured_at: Some(ts),
+            created_at: 0,
+            captured_at: ts,
             accounts: vec![],
         }),
     }
