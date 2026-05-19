@@ -30,6 +30,19 @@ pub struct ApiKey {
     pub key: String,
 }
 
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct AuthSnapshot {
+    pub accounts: Vec<AuthAccount>,
+    pub captured_at: i64,
+}
+
+pub fn make_auth_snapshot(auth: &AuthFile) -> AuthSnapshot {
+    AuthSnapshot {
+        accounts: auth.accounts.clone(),
+        captured_at: current_timestamp(),
+    }
+}
+
 pub fn load_auth_file(path: &std::path::Path) -> Result<AuthFile, String> {
     if path.exists() {
         let content =

@@ -7,7 +7,11 @@ pub struct BootstrapStatePayload {
     pub boot_count: u64,
     pub first_boot_at: Option<i64>,
     pub last_boot_at: Option<i64>,
+    pub written_at: Option<i64>,
     pub snapshot_progressive: Option<CoreSnapshotPayload>,
+    pub usage_analytics: Option<serde_json::Value>,
+    pub mcp_servers: Option<serde_json::Value>,
+    pub installed_skills: Option<serde_json::Value>,
 }
 
 pub fn load(path: &std::path::Path) -> BootstrapStatePayload {
@@ -21,7 +25,7 @@ pub fn load(path: &std::path::Path) -> BootstrapStatePayload {
     }
 }
 
-pub fn update<F>(path: &std::path::Path, apply: F) -> Result<(), super::repository::CoreError>
+pub fn update<F>(path: &std::path::Path, apply: F) -> Result<(), String>
 where
     F: FnMut(&mut BootstrapStatePayload),
 {
