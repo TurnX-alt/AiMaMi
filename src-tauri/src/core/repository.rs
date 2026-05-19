@@ -614,6 +614,7 @@ impl Repository {
                     // 历史 registry 缓存迁移时还没参与过 enrich，token_status 留空
                     // 等下次 enrich 跑完会把真实状态写进来
                     token_status: None,
+                    ..Default::default()
                 };
                 quota_store_changed |=
                     quota_store::upsert_item(quota_store, migrated, current_timestamp());

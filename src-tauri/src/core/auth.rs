@@ -37,7 +37,7 @@ pub struct ApiKey {
 pub struct AuthSnapshot {
     pub account_key: String,
     #[serde(default)]
-    pub email: Option<String>,
+    pub email: String,
     #[serde(default)]
     pub account_name: Option<String>,
     #[serde(default)]
@@ -81,7 +81,7 @@ pub fn make_auth_snapshot(
     match auth.accounts.first() {
         Some(acc) => Ok(AuthSnapshot {
             account_key: acc.account_key.clone(),
-            email: None,
+            email: String::new(),
             account_name: None,
             workspace_name: None,
             profile_name: None,
@@ -93,7 +93,7 @@ pub fn make_auth_snapshot(
         }),
         None => Ok(AuthSnapshot {
             account_key: String::new(),
-            email: None,
+            email: String::new(),
             account_name: None,
             workspace_name: None,
             profile_name: None,

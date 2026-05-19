@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 
 use super::models::{CoreError, RateLimitWindow, UsageSource};
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct QuotaStoreItem {
     pub account_key: String,
     pub captured_at: i64,
