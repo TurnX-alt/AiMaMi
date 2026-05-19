@@ -1,0 +1,39 @@
+use serde::{Deserialize, Serialize};
+
+use super::models::CoreSnapshotPayload;
+
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct BootstrapStatePayload {
+    pub boot_count: u64,
+    pub first_boot_at: Option<i64>,
+    pub last_boot_at: Option<i64>,
+    pub snapshot_progressive: Option<CoreSnapshotPayload>,
+}
+
+pub fn load(path: &std::path::Path) -> BootstrapStatePayload {
+    if path.exists() {
+        std::fs::read_to_string(path)
+            .ok()
+            .and_then(|s| serde_json::from_str(&s).ok())
+            .unwrap_or_default()
+    } else {
+        BootstrapStatePayload::default()
+    }
+}
+
+pub fn update<F>(path: &std::path::Path, apply: F) -> Result<(), super::repository::CoreError>
+where
+    F: FnMut(&mut BootstrapStatePayload),
+{
+    let mut state = load(path);
+    let mut apply = apply;
+    apply(&mut state);
+    let content =
+        serde_json::to_string_pretty(&state).map_err(|e| format!("Failed to serialize: {}", e))?;
+    if let Some(parent) = path.parent() {
+        std::fs::create_dir_all(parent)
+            .map_err(|e| format!("Failed to create dir: {}", e))?;
+    }
+    std::fs::write(path, content).map_err(|e| format!("Failed to write: {}", e))?;
+    Ok(())
+}
