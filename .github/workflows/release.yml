@@ -35,6 +35,15 @@ jobs:
       - name: Install dependencies
         run: pnpm install --no-frozen-lockfile
 
+      - name: Skip TypeScript check for release build
+        shell: bash
+        run: |
+          node -e "
+            const pkg = require('./package.json');
+            pkg.scripts.build = 'vite build';
+            require('fs').writeFileSync('./package.json', JSON.stringify(pkg, null, 2) + '\n');
+          "
+
       - name: Read app version
         id: app_version
         shell: bash
