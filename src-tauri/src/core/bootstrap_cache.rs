@@ -25,19 +25,17 @@ pub fn load(path: &std::path::Path) -> BootstrapStatePayload {
     }
 }
 
-pub fn update<F>(path: &std::path::Path, apply: F) -> Result<(), String>
+pub fn update<F>(path: &std::path::Path, apply: F) -> Result<(), super::models::CoreError>
 where
     F: FnMut(&mut BootstrapStatePayload),
 {
     let mut state = load(path);
     let mut apply = apply;
     apply(&mut state);
-    let content =
-        serde_json::to_string_pretty(&state).map_err(|e| format!("Failed to serialize: {}", e))?;
+    let content = serde_json::to_string_pretty(&state)?;
     if let Some(parent) = path.parent() {
-        std::fs::create_dir_all(parent)
-            .map_err(|e| format!("Failed to create dir: {}", e))?;
+        std::fs::create_dir_all(parent)?;
     }
-    std::fs::write(path, content).map_err(|e| format!("Failed to write: {}", e))?;
+    std::fs::write(path, content)?;
     Ok(())
 }

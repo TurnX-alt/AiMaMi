@@ -1,24 +1,32 @@
 use serde::{Deserialize, Serialize};
 
-use super::auth::current_timestamp;
-
-#[derive(Debug, Clone, Serialize, Deserialize, Default)]
-pub struct QuotaStoreFile {
-    pub items: Vec<QuotaStoreItem>,
-    pub updated_at: i64,
-}
+use super::models::{CoreError, RateLimitWindow, UsageSource};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct QuotaStoreItem {
     pub account_key: String,
     pub captured_at: i64,
     pub last_updated_at: i64,
-    pub usage_source: Option<String>,
-    pub primary_window: Option<serde_json::Value>,
-    pub secondary_window: Option<serde_json::Value>,
+    #[serde(default)]
+    pub usage_source: Option<UsageSource>,
+    #[serde(default)]
+    pub primary_window: Option<RateLimitWindow>,
+    #[serde(default)]
+    pub secondary_window: Option<RateLimitWindow>,
+    #[serde(default)]
     pub primary_window_remaining: Option<i64>,
+    #[serde(default)]
     pub secondary_window_remaining: Option<i64>,
+    #[serde(default)]
     pub token_status: Option<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct QuotaStoreFile {
+    #[serde(default)]
+    pub items: Vec<QuotaStoreItem>,
+    #[serde(default)]
+    pub updated_at: i64,
 }
 
 pub fn load_or_default(path: &std::path::Path) -> QuotaStoreFile {
@@ -32,7 +40,7 @@ pub fn load_or_default(path: &std::path::Path) -> QuotaStoreFile {
     }
 }
 
-pub fn find_item(store: &QuotaStoreFile, account_key: &str) -> Option<&QuotaStoreItem> {
+pub fn find_item<'a>(store: &'a QuotaStoreFile, account_key: &str) -> Option<&'a QuotaStoreItem> {
     store
         .items
         .iter()
@@ -44,12 +52,9 @@ pub fn upsert_item(
     item: QuotaStoreItem,
     ts: i64,
 ) -> bool {
-    let existing = store
-        .items
-        .iter_mut()
-        .find(|i| i.account_key == item.account_key);
+    let existing = store.items.iter_mut().find(|i| i.account_key == item.account_key);
     if let Some(existing) = existing {
-        existing.clone_from(&item);
+        *existing = item;
         existing.last_updated_at = ts;
     } else {
         let mut new_item = item;
@@ -59,12 +64,11 @@ pub fn upsert_item(
     true
 }
 
-pub fn save(path: &std::path::Path, store: &QuotaStoreFile) -> Result<(), String> {
+pub fn save(path: &std::path::Path, store: &QuotaStoreFile) -> Result<(), CoreError> {
     if let Some(parent) = path.parent() {
-        std::fs::create_dir_all(parent).map_err(|e| format!("Failed to create dir: {}", e))?;
+        std::fs::create_dir_all(parent)?;
     }
-    let content =
-        serde_json::to_string_pretty(store).map_err(|e| format!("Failed to serialize: {}", e))?;
-    std::fs::write(path, content).map_err(|e| format!("Failed to write: {}", e))?;
+    let content = serde_json::to_string_pretty(store)?;
+    std::fs::write(path, content)?;
     Ok(())
 }
