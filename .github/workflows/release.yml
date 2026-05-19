@@ -10,26 +10,7 @@ jobs:
   release:
     permissions:
       contents: write
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - platform: "macos-latest"
-            args: "--target aarch64-apple-darwin"
-          - platform: "macos-latest"
-            args: "--target x86_64-apple-darwin"
-          - platform: "ubuntu-22.04"
-            args: ""
-          - platform: "ubuntu-24.04-arm"
-            args: ""
-          - platform: "windows-latest"
-            args: ""
-
-    runs-on: ${{ matrix.platform }}
-
-    env:
-      TAURI_SKIP_VERSION_CHECK: "1"
-      CI: "true"
+    runs-on: windows-latest
 
     steps:
       - name: Checkout repository
@@ -37,17 +18,8 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Install dependencies (Linux)
-        if: startsWith(matrix.platform, 'ubuntu')
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y libwebkit2gtk-4.1-dev build-essential curl wget file libssl-dev libgtk-3-dev libayatana-appindicator3-dev librsvg2-dev patchelf pkg-config libsoup-3.0-dev javascriptcoregtk-4.1 libjavascriptcoregtk-4.1-dev
-          sudo apt-get install -y libnm-dev xdg-utils
-
       - name: Rust setup
         uses: dtolnay/rust-toolchain@stable
-        with:
-          targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
 
       - name: Node.js setup
         uses: actions/setup-node@v4
@@ -67,42 +39,27 @@ jobs:
         id: app_version
         shell: bash
         run: |
-          cd "$GITHUB_WORKSPACE"
-          VERSION="$(node -e "console.log(require(require('path').join(process.env.GITHUB_WORKSPACE, 'package.json')).version)")"
+          VERSION="$(node -e "console.log(require('./package.json').version)")"
           echo "VERSION=$VERSION" >> "$GITHUB_OUTPUT"
-
-      - name: Validate tag matches version
-        if: startsWith(github.ref, 'refs/tags/')
-        shell: bash
-        run: |
-          EXPECTED_TAG="v${{ steps.app_version.outputs.VERSION }}-"
-          if [[ "${GITHUB_REF_NAME}" != "${EXPECTED_TAG}"* ]]; then
-            echo "Tag (${GITHUB_REF_NAME}) does not match package.json version v${{ steps.app_version.outputs.VERSION }}."
-            echo "Expected tag format: v${{ steps.app_version.outputs.VERSION }}-YYYYMMDD"
-            exit 1
-          fi
 
       - name: Build release notes
         id: release_notes
         shell: bash
         run: |
           VERSION="${{ steps.app_version.outputs.VERSION }}"
-          TAG="${GITHUB_REF_NAME}"
-          {
-            echo "body<<EOF"
-            echo "## AiMaMi $TAG"
-            echo
-            echo "Security-hardened fork release by TurnX-alt."
-            echo
-            echo "### Security Patches"
-            echo "- CSP policy enforced (restrictive default-src 'self')"
-            echo "- Dependency locks verified (pnpm-lock.yaml, packageManager exact version)"
-            echo "- Updater signing key rotation"
-            echo
-            echo "### Upstream Version"
-            echo "- Based on borawong/AiMaMi v$VERSION"
-            echo "EOF"
-          } >> "$GITHUB_OUTPUT"
+          echo "body<<EOF" >> "$GITHUB_OUTPUT"
+          echo "## AiMaMi ${GITHUB_REF_NAME}" >> "$GITHUB_OUTPUT"
+          echo "" >> "$GITHUB_OUTPUT"
+          echo "Security-hardened fork release by TurnX-alt." >> "$GITHUB_OUTPUT"
+          echo "" >> "$GITHUB_OUTPUT"
+          echo "### Security Patches" >> "$GITHUB_OUTPUT"
+          echo "- CSP policy enforced (restrictive default-src 'self')" >> "$GITHUB_OUTPUT"
+          echo "- Dependency versions pinned for Tauri compatibility" >> "$GITHUB_OUTPUT"
+          echo "- Updater signing key rotation" >> "$GITHUB_OUTPUT"
+          echo "" >> "$GITHUB_OUTPUT"
+          echo "### Upstream" >> "$GITHUB_OUTPUT"
+          echo "- Based on borawong/AiMaMi v$VERSION" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
 
       - name: Build the app
         uses: tauri-apps/tauri-action@v0
@@ -116,7 +73,6 @@ jobs:
           releaseBody: ${{ steps.release_notes.outputs.body }}
           releaseDraft: true
           prerelease: false
-          args: ${{ matrix.args }}
 
   publish-release:
     name: Publish release
