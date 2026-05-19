@@ -53,7 +53,15 @@
       "wix": {
         "language": ["en-US", "zh-CN"]
       }
-    }
+    },
+    "createUpdaterArtifacts": true
   },
-  "plugins": {}
+  "plugins": {
+    "updater": {
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEEzOEVCRThGMURGRjIzRjgKUldUNEkvOGRqNzZPbytTRkx1RWpMQ2hqOTRkbTZTNGloU1k2eXpDelMxMS8wcmkyQUJNb0lBUk4K",
+      "endpoints": [
+        "https://github.com/TurnX-alt/AiMaMi/releases/latest/download/latest.json"
+      ]
+    }
+  }
 }
