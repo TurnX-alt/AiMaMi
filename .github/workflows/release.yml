@@ -28,7 +28,8 @@ jobs:
     runs-on: ${{ matrix.platform }}
 
     env:
-      TAURI_SKIP_VERSION_CHECK: "true"
+      TAURI_SKIP_VERSION_CHECK: "1"
+      CI: "true"
 
     steps:
       - name: Checkout repository
