@@ -45,18 +45,19 @@ jobs:
         with:
           targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
 
-      - name: Install pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 10.26.2
-
       - name: Node.js setup
         uses: actions/setup-node@v4
         with:
           node-version: 20
 
+      - name: Set up pnpm
+        shell: bash
+        run: |
+          npm install -g pnpm@10.26.2
+          pnpm config set auto-install-peers true
+
       - name: Install dependencies
-        run: pnpm install
+        run: pnpm install --no-frozen-lockfile
 
       - name: Read app version
         id: app_version
