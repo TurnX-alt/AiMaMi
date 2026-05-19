@@ -57,7 +57,7 @@ jobs:
           cache: "pnpm"
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm install
 
       - name: Read app version
         id: app_version
@@ -71,10 +71,10 @@ jobs:
         if: startsWith(github.ref, 'refs/tags/')
         shell: bash
         run: |
-          EXPECTED_TAG="v${{ steps.app_version.outputs.VERSION }}+"
+          EXPECTED_TAG="v${{ steps.app_version.outputs.VERSION }}-"
           if [[ "${GITHUB_REF_NAME}" != "${EXPECTED_TAG}"* ]]; then
             echo "Tag (${GITHUB_REF_NAME}) does not match package.json version v${{ steps.app_version.outputs.VERSION }}."
-            echo "Expected tag format: v${{ steps.app_version.outputs.VERSION }}+YYYYMMDD"
+            echo "Expected tag format: v${{ steps.app_version.outputs.VERSION }}-YYYYMMDD"
             exit 1
           fi
 
